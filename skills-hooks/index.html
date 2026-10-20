@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills &amp; Hooks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<main id="deck">
+
+  <!-- 1. Title -->
+  <section class="slide title-slide">
+    <div class="eyebrow">Claude Code · Extending the agent</div>
+    <h1><span>Skills <span class="hl" style="display:inline">&amp;</span> Hooks</span>
+        <span class="hl2">the widely used ones</span></h1>
+    <p class="lead">What they are, the most popular ones people actually install,
+      how to install them, and where to find more.</p>
+    <div class="tags">
+      <span class="tag">SKILL.md</span>
+      <span class="tag">settings.json</span>
+      <span class="tag">/plugin</span>
+      <span class="tag">/hooks</span>
+      <span class="tag">marketplaces</span>
+    </div>
+    <div class="hint">Navigate with <kbd>↓</kbd> <kbd>↑</kbd> <kbd>Space</kbd> or scroll</div>
+    <div class="slide-num">01</div>
+  </section>
+
+  <!-- 2. Skills vs Hooks -->
+  <section class="slide">
+    <div class="eyebrow">The big picture</div>
+    <h2>Two different ways to extend Claude</h2>
+    <table class="compare">
+      <thead>
+        <tr><th></th><th class="col-skill">Skills</th><th class="col-hook">Hooks</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>What it is</td><td>A folder of instructions (+ optional scripts) Claude <b>chooses</b> to load</td><td>A shell command the harness <b>always</b> runs on an event</td></tr>
+        <tr><td>Who decides</td><td>The model — based on the skill's <code class="inline">description</code></td><td>Deterministic — fires every time the event matches</td></tr>
+        <tr><td>Good for</td><td>Know-how, workflows, file formats, team conventions</td><td>Guardrails, formatting, notifications, logging</td></tr>
+        <tr><td>Lives in</td><td><code class="inline">.claude/skills/&lt;name&gt;/SKILL.md</code></td><td><code class="inline">.claude/settings.json</code> → <code class="inline">"hooks"</code></td></tr>
+        <tr><td>Rule of thumb</td><td>"Claude should <i>know how</i> to do X"</td><td>"X must <i>always</i> happen when Y"</td></tr>
+      </tbody>
+    </table>
+    <div class="slide-num">02</div>
+  </section>
+
+  <!-- 3. Skill anatomy -->
+  <section class="slide">
+    <div class="eyebrow">Skills · Anatomy</div>
+    <h2>A skill is just a folder with a <span class="hl">SKILL.md</span></h2>
+    <div class="split">
+      <div>
+        <div class="tree">
+          <b>pdf-tools/</b><br>
+          ├── <b>SKILL.md</b> &nbsp;<span class="hl">← required</span><br>
+          ├── reference.md &nbsp;<span style="opacity:.7">← loaded on demand</span><br>
+          └── scripts/<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── fill_form.py
+        </div>
+        <p class="lead" style="font-size:1rem">Only the <b>name + description</b> sit in context all the time.
+          The body and extra files are read only when Claude decides the skill is relevant —
+          that's why you can install dozens without bloating the prompt.</p>
+      </div>
+      <div>
+        <div class="file-label">pdf-tools/SKILL.md</div>
+<pre><span class="y">---</span>
+<span class="k">name</span>: <span class="s">pdf-tools</span>
+<span class="k">description</span>: <span class="s">Extract text, fill forms and merge
+  PDFs. Use when the user mentions a .pdf
+  file or asks to work with PDF documents.</span>
+<span class="y">---</span>
+
+<span class="p"># PDF tools</span>
+
+<span class="c">## Extract text</span>
+Use pdfplumber: ...
+
+<span class="c">## Fill a form</span>
+Run `python scripts/fill_form.py in.pdf data.json`
+
+For advanced cases see [reference.md](reference.md).</pre>
+      </div>
+    </div>
+    <div class="slide-num">03</div>
+  </section>
+
+  <!-- 4. Where skills live -->
+  <section class="slide">
+    <div class="eyebrow">Skills · Locations</div>
+    <h2>Where skills live</h2>
+    <div class="grid grid-3">
+      <div class="card accent">
+        <span class="big-icon">👤</span>
+        <h3>Personal</h3>
+        <p><code class="inline">~/.claude/skills/</code></p>
+        <p style="margin-top:8px">Available in every project on your machine. Good for your own habits and tools.</p>
+      </div>
+      <div class="card accent2">
+        <span class="big-icon">📁</span>
+        <h3>Project</h3>
+        <p><code class="inline">.claude/skills/</code></p>
+        <p style="margin-top:8px">Committed to git — the whole team gets the same skills when they clone the repo.</p>
+      </div>
+      <div class="card accent3">
+        <span class="big-icon">🧩</span>
+        <h3>Plugin</h3>
+        <p><code class="inline">plugin/skills/</code></p>
+        <p style="margin-top:8px">Bundled inside a plugin and installed from a marketplace. Namespaced as <code class="inline">plugin:skill</code>.</p>
+      </div>
+    </div>
+    <div class="callout">Invoke one explicitly with <code class="inline">/skill-name</code>, or just describe the task —
+      Claude matches it against each skill's <b>description</b> and loads it automatically.</div>
+    <div class="slide-num">04</div>
+  </section>
+
+  <!-- 5. Popular skills: Anthropic -->
+  <section class="slide">
+    <div class="eyebrow">Skills · Widely used (1/2)</div>
+    <h2>Anthropic's official skills</h2>
+    <div class="grid grid-4">
+      <div class="card accent">
+        <h3>📄 docx / pdf / pptx / xlsx</h3>
+        <p>Create, read and edit Office documents and PDFs — the most installed skills by far.</p>
+        <span class="src">document-skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🛠 skill-creator</h3>
+        <p>Interactive guide that helps you write, test and package your own skills.</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🎨 frontend-design</h3>
+        <p>Pushes Claude away from generic "AI-looking" UI toward distinctive, polished front-ends.</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🔌 mcp-builder</h3>
+        <p>Step-by-step guide for building high-quality MCP servers (Python or TypeScript).</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🧪 webapp-testing</h3>
+        <p>Drives a local web app with Playwright to verify UI and capture screenshots.</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🖼 canvas-design</h3>
+        <p>Produces posters and visual art as PNG/PDF using design principles.</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🌀 algorithmic-art</h3>
+        <p>Generative art with p5.js — seeded randomness, flow fields, particles.</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+      <div class="card accent">
+        <h3>🏷 brand-guidelines</h3>
+        <p>Template for applying a company's colors, fonts and tone to everything Claude makes.</p>
+        <span class="src">anthropics/skills</span>
+      </div>
+    </div>
+    <div class="slide-num">05</div>
+  </section>
+
+  <!-- 6. Popular skills: community -->
+  <section class="slide">
+    <div class="eyebrow">Skills · Widely used (2/2)</div>
+    <h2>Community favorites</h2>
+    <div class="grid grid-3">
+      <div class="card accent2">
+        <h3>⚡ Superpowers <span style="color:var(--muted);font-weight:400">(obra)</span></h3>
+        <p>A full engineering workflow as skills — probably the most popular community pack.</p>
+        <ul style="margin-top:8px">
+          <li><b>brainstorming</b> — clarify before building</li>
+          <li><b>writing-plans</b> / <b>executing-plans</b></li>
+          <li><b>test-driven-development</b></li>
+          <li><b>systematic-debugging</b></li>
+          <li><b>using-git-worktrees</b></li>
+        </ul>
+        <span class="src">github.com/obra/superpowers</span>
+      </div>
+      <div class="card accent2">
+        <h3>▲ Vercel agent skills</h3>
+        <p>React / Next.js best-practice and web-design review skills, installable into many agents at once.</p>
+        <ul style="margin-top:8px">
+          <li><b>react-best-practices</b></li>
+          <li><b>web-design-guidelines</b></li>
+        </ul>
+        <span class="src">github.com/vercel-labs/agent-skills</span>
+      </div>
+      <div class="card accent2">
+        <h3>🧠 Domain & workflow packs</h3>
+        <p>Typical things people share and install:</p>
+        <ul style="margin-top:8px">
+          <li>Code review / security review checklists</li>
+          <li>Changelog &amp; commit-message writers</li>
+          <li>Framework guides (Swift, Expo, Tailwind…)</li>
+          <li>Company "how we do things here" skills</li>
+        </ul>
+        <span class="src">awesome-claude-skills lists</span>
+      </div>
+    </div>
+    <div class="slide-num">06</div>
+  </section>
+
+  <!-- 7. Installing skills -->
+  <section class="slide">
+    <div class="eyebrow">Skills · Installation</div>
+    <h2>Three common ways to install a skill</h2>
+    <div class="grid grid-3">
+      <div class="card accent">
+        <h3>1 · Plugin marketplace <span class="hl3" style="font-size:.8rem">recommended</span></h3>
+        <p>Add a marketplace once, then install plugins from it. Updates are handled for you.</p>
+<pre style="margin-top:12px"><span class="c"># inside Claude Code</span>
+<span class="p">/plugin marketplace add</span> anthropics/skills
+<span class="p">/plugin install</span> document-skills@anthropic-agent-skills
+
+<span class="p">/plugin marketplace add</span> obra/superpowers-marketplace
+<span class="p">/plugin install</span> superpowers@superpowers-marketplace
+
+<span class="c"># or browse interactively</span>
+<span class="p">/plugin</span></pre>
+      </div>
+      <div class="card accent2">
+        <h3>2 · Copy the folder</h3>
+        <p>Every skill is just files — clone or download and drop it in a skills directory.</p>
+<pre style="margin-top:12px"><span class="c"># personal (all projects)</span>
+git clone https://github.com/anthropics/skills
+cp -r skills/skills/pdf ~/.claude/skills/
+
+<span class="c"># project (shared via git)</span>
+cp -r skills/skills/pdf .claude/skills/</pre>
+        <p style="margin-top:8px">Restart Claude Code so it picks the new skill up.</p>
+      </div>
+      <div class="card accent3">
+        <h3>3 · Skills CLI</h3>
+        <p>Cross-agent installer from the <b>skills.sh</b> directory (Claude Code, Cursor, Codex…).</p>
+<pre style="margin-top:12px"><span class="p">npx</span> skills add vercel-labs/agent-skills</pre>
+        <p style="margin-top:8px">Or write your own: create <code class="inline">.claude/skills/my-skill/SKILL.md</code>
+          — or ask Claude to use <b>skill-creator</b>.</p>
+      </div>
+    </div>
+    <div class="slide-num">07</div>
+  </section>
+
+  <!-- 8. Hook lifecycle -->
+  <section class="slide">
+    <div class="eyebrow">Hooks · Events</div>
+    <h2>Hooks fire at points in Claude's <span class="hl2">lifecycle</span></h2>
+    <div class="timeline">
+      <div class="event"><div class="name">SessionStart</div><p>Session opens/resumes — inject context (git status, TODOs).</p></div>
+      <div class="event blocking"><div class="name">UserPromptSubmit</div><p>Before your prompt reaches Claude — validate or add context.</p></div>
+      <div class="event blocking"><div class="name">PreToolUse</div><p>Before a tool runs — the main place for guardrails.</p></div>
+      <div class="event blocking"><div class="name">PermissionRequest</div><p>When a permission dialog would show — auto-allow or deny.</p></div>
+      <div class="event"><div class="name">PostToolUse</div><p>After a tool succeeds — format, lint, test.</p></div>
+      <div class="event"><div class="name">Notification</div><p>Claude needs input or permission — ping yourself.</p></div>
+      <div class="event blocking"><div class="name">Stop / SubagentStop</div><p>Claude finishes — run checks, force it to keep going.</p></div>
+      <div class="event"><div class="name">PreCompact</div><p>Before context is compacted — back up the transcript.</p></div>
+      <div class="event"><div class="name">SessionEnd</div><p>Session closes — cleanup, logging, stats.</p></div>
+    </div>
+    <div class="callout">Each hook receives a JSON payload on <b>stdin</b> (session id, tool name, tool input…).
+      Exit code <code class="inline">0</code> = OK, <code class="inline">2</code> = <b>block</b> and send stderr back to Claude as feedback.</div>
+    <div class="slide-num">08</div>
+  </section>
+
+  <!-- 9. Hook anatomy -->
+  <section class="slide">
+    <div class="eyebrow">Hooks · Anatomy</div>
+    <h2>A hook is config in <span class="hl2">settings.json</span></h2>
+    <div class="split">
+      <div>
+        <div class="file-label">.claude/settings.json</div>
+<pre>{
+  <span class="k">"hooks"</span>: {
+    <span class="k">"PostToolUse"</span>: [                <span class="c">// event</span>
+      {
+        <span class="k">"matcher"</span>: <span class="s">"Edit|Write"</span>,      <span class="c">// which tools</span>
+        <span class="k">"hooks"</span>: [
+          {
+            <span class="k">"type"</span>: <span class="s">"command"</span>,
+            <span class="k">"command"</span>: <span class="s">"jq -r '.tool_input.file_path'
+              | xargs npx prettier --write"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+      </div>
+      <div>
+        <div class="steps">
+          <div class="step"><div><h3>Event</h3><p>Which lifecycle moment — <code class="inline">PreToolUse</code>, <code class="inline">Stop</code>, …</p></div></div>
+          <div class="step"><div><h3>Matcher</h3><p>Regex on the tool name: <code class="inline">Bash</code>, <code class="inline">Edit|Write</code>, <code class="inline">mcp__github__.*</code>. Empty = everything.</p></div></div>
+          <div class="step"><div><h3>Command</h3><p>Any shell command or script. Reads JSON from stdin, answers with an exit code (and optionally JSON on stdout).</p></div></div>
+        </div>
+        <div class="callout">Settings files, by scope:<br>
+          <code class="inline">~/.claude/settings.json</code> — you, everywhere<br>
+          <code class="inline">.claude/settings.json</code> — the project (commit it)<br>
+          <code class="inline">.claude/settings.local.json</code> — you, this project only</div>
+      </div>
+    </div>
+    <div class="slide-num">09</div>
+  </section>
+
+  <!-- 10. Popular hooks -->
+  <section class="slide">
+    <div class="eyebrow">Hooks · Widely used</div>
+    <h2>The hooks almost everyone ends up writing</h2>
+    <div class="grid grid-3">
+      <div class="card accent3">
+        <h3>✨ Auto-format on edit</h3>
+        <p><b>PostToolUse</b> · <code class="inline">Edit|Write</code></p>
+        <p style="margin-top:6px">Run Prettier, Black, gofmt or ruff on every file Claude touches.</p>
+      </div>
+      <div class="card danger">
+        <h3>🛑 Block dangerous commands</h3>
+        <p><b>PreToolUse</b> · <code class="inline">Bash</code></p>
+        <p style="margin-top:6px">Reject <code class="inline">rm -rf</code>, <code class="inline">git push --force</code>, <code class="inline">DROP TABLE</code> with exit code 2.</p>
+      </div>
+      <div class="card danger">
+        <h3>🔒 Protect sensitive files</h3>
+        <p><b>PreToolUse</b> · <code class="inline">Edit|Write|Read</code></p>
+        <p style="margin-top:6px">Keep Claude out of <code class="inline">.env</code>, keys, lock files and <code class="inline">.git/</code>.</p>
+      </div>
+      <div class="card accent4">
+        <h3>🔔 Desktop notification</h3>
+        <p><b>Notification</b> / <b>Stop</b></p>
+        <p style="margin-top:6px">Sound or toast when Claude is waiting for you or done — so you can walk away.</p>
+      </div>
+      <div class="card accent2">
+        <h3>✅ Lint / test before "done"</h3>
+        <p><b>Stop</b> · or <b>PostToolUse</b></p>
+        <p style="margin-top:6px">Run <code class="inline">tsc</code>, eslint or the test suite; exit 2 makes Claude fix failures.</p>
+      </div>
+      <div class="card accent">
+        <h3>🧭 Inject context at start</h3>
+        <p><b>SessionStart</b> / <b>UserPromptSubmit</b></p>
+        <p style="margin-top:6px">Print git branch, open issues or today's tasks — stdout is added to Claude's context.</p>
+      </div>
+    </div>
+    <div class="slide-num">10</div>
+  </section>
+
+  <!-- 11. Hook examples -->
+  <section class="slide">
+    <div class="eyebrow">Hooks · Copy-paste examples</div>
+    <h2>Two ready-to-use hooks</h2>
+    <div class="grid grid-2">
+      <div>
+        <div class="file-label">Block rm -rf  ·  .claude/hooks/guard.sh</div>
+<pre><span class="c">#!/usr/bin/env bash</span>
+cmd=$(jq -r '.tool_input.command')
+
+if echo "$cmd" | grep -qE 'rm -rf|git push --force'; then
+  echo "Blocked: dangerous command" >&2
+  <span class="p">exit 2</span>   <span class="c"># block + tell Claude why</span>
+fi
+exit 0</pre>
+<pre style="margin-top:10px">{ <span class="k">"hooks"</span>: { <span class="k">"PreToolUse"</span>: [{
+  <span class="k">"matcher"</span>: <span class="s">"Bash"</span>,
+  <span class="k">"hooks"</span>: [{ <span class="k">"type"</span>: <span class="s">"command"</span>,
+    <span class="k">"command"</span>: <span class="s">"bash .claude/hooks/guard.sh"</span> }]
+}]}}</pre>
+      </div>
+      <div>
+        <div class="file-label">Notify when Claude needs you  ·  settings.json</div>
+<pre>{ <span class="k">"hooks"</span>: { <span class="k">"Notification"</span>: [{
+  <span class="k">"matcher"</span>: <span class="s">""</span>,
+  <span class="k">"hooks"</span>: [{ <span class="k">"type"</span>: <span class="s">"command"</span>,
+    <span class="c">// Windows</span>
+    <span class="k">"command"</span>: <span class="s">"powershell -c [console]::beep(800,300)"</span>
+    <span class="c">// macOS: osascript -e 'display notification \"Claude needs you\"'</span>
+    <span class="c">// Linux: notify-send 'Claude Code' 'Needs your input'</span>
+  }]
+}]}}</pre>
+        <div class="callout">Tip: inside Claude Code run <code class="inline">/hooks</code> to see every active hook
+          and where it's defined — or just ask Claude <i>"add a hook that…"</i> and it will edit settings.json for you.</div>
+      </div>
+    </div>
+    <div class="slide-num">11</div>
+  </section>
+
+  <!-- 12. Installing hooks -->
+  <section class="slide">
+    <div class="eyebrow">Hooks · Installation</div>
+    <h2>How hooks are usually installed</h2>
+    <div class="steps" style="max-width:900px">
+      <div class="step"><div><h3>Paste into a settings file</h3>
+        <p>The most common way: copy a JSON snippet into <code class="inline">~/.claude/settings.json</code> (personal) or
+          <code class="inline">.claude/settings.json</code> (team). Keep longer scripts in <code class="inline">.claude/hooks/</code>.</p></div></div>
+      <div class="step"><div><h3>Use the <code class="inline">/hooks</code> menu</h3>
+        <p>Interactive UI inside Claude Code — pick an event, a matcher and a command; it writes the JSON for you.</p></div></div>
+      <div class="step"><div><h3>Install a plugin that ships hooks</h3>
+        <p>Plugins can include <code class="inline">hooks/hooks.json</code>. <code class="inline">/plugin install …</code> activates them alongside
+          skills, commands and agents — e.g. Superpowers uses a <b>SessionStart</b> hook to load its skills intro.</p></div></div>
+      <div class="step"><div><h3>Review &amp; restart</h3>
+        <p>Hooks are snapshotted at startup — restart the session (or review in <code class="inline">/hooks</code>) after edits.</p></div></div>
+    </div>
+    <div class="slide-num">12</div>
+  </section>
+
+  <!-- 13. Where to search -->
+  <section class="slide">
+    <div class="eyebrow">Discovery</div>
+    <h2>Where to search for skills &amp; hooks</h2>
+    <div class="grid grid-3 links">
+      <a class="card accent" href="https://github.com/anthropics/skills" target="_blank" rel="noopener">
+        <h3>anthropics/skills</h3>
+        <p>Official example &amp; document skills. Also a plugin marketplace.</p>
+        <span class="url">github.com/anthropics/skills</span>
+      </a>
+      <a class="card accent" href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener">
+        <h3>Official docs</h3>
+        <p>Skills, hooks reference, hooks guide, plugins &amp; marketplaces.</p>
+        <span class="url">code.claude.com/docs</span>
+      </a>
+      <a class="card accent2" href="https://github.com/obra/superpowers" target="_blank" rel="noopener">
+        <h3>obra/superpowers</h3>
+        <p>Battle-tested dev-workflow skill library (TDD, debugging, planning).</p>
+        <span class="url">github.com/obra/superpowers</span>
+      </a>
+      <a class="card accent2" href="https://github.com/hesreallyhim/awesome-claude-code" target="_blank" rel="noopener">
+        <h3>awesome-claude-code</h3>
+        <p>Curated list of skills, hooks, slash commands, status lines and tooling.</p>
+        <span class="url">github.com/hesreallyhim/awesome-claude-code</span>
+      </a>
+      <a class="card accent3" href="https://github.com/travisvn/awesome-claude-skills" target="_blank" rel="noopener">
+        <h3>awesome-claude-skills</h3>
+        <p>Curated skill lists (also ComposioHQ/awesome-claude-skills).</p>
+        <span class="url">github.com/travisvn/awesome-claude-skills</span>
+      </a>
+      <a class="card accent3" href="https://github.com/disler/claude-code-hooks-mastery" target="_blank" rel="noopener">
+        <h3>claude-code-hooks-mastery</h3>
+        <p>Working examples for every hook event — great to learn from.</p>
+        <span class="url">github.com/disler/claude-code-hooks-mastery</span>
+      </a>
+      <a class="card accent4" href="https://skills.sh" target="_blank" rel="noopener">
+        <h3>skills.sh</h3>
+        <p>Searchable skills directory with leaderboard + <code class="inline">npx skills</code> installer.</p>
+        <span class="url">skills.sh</span>
+      </a>
+      <a class="card accent4" href="https://skillsmp.com" target="_blank" rel="noopener">
+        <h3>SkillsMP</h3>
+        <p>Community marketplace indexing skills found on GitHub.</p>
+        <span class="url">skillsmp.com</span>
+      </a>
+      <div class="card accent4">
+        <h3>Inside Claude Code</h3>
+        <p><code class="inline">/plugin</code> → <b>Discover</b> tab lists every plugin from the marketplaces you've added.</p>
+        <span class="url">/plugin</span>
+      </div>
+    </div>
+    <div class="slide-num">13</div>
+  </section>
+
+  <!-- 14. Safety -->
+  <section class="slide">
+    <div class="eyebrow">Before you install</div>
+    <h2>Treat skills &amp; hooks like <span style="color:var(--danger)">code you run</span></h2>
+    <div class="grid grid-2">
+      <div class="card danger">
+        <h3>⚠️ Hooks run with your permissions</h3>
+        <p>A hook is an arbitrary shell command that runs automatically — no confirmation prompt.
+          A malicious one can read files, exfiltrate secrets or delete things.</p>
+      </div>
+      <div class="card danger">
+        <h3>⚠️ Skills can carry scripts &amp; instructions</h3>
+        <p>A skill's text steers Claude, and its scripts may get executed. Read the <code class="inline">SKILL.md</code>
+          and any <code class="inline">scripts/</code> before trusting it.</p>
+      </div>
+      <div class="card accent3">
+        <h3>✅ Good habits</h3>
+        <ul>
+          <li>Prefer official / well-known sources with many stars</li>
+          <li>Read the code; pin to a commit or tag</li>
+          <li>Quote shell variables, use absolute paths in hooks</li>
+        </ul>
+      </div>
+      <div class="card accent3">
+        <h3>✅ Keep it lean</h3>
+        <ul>
+          <li>Install what you'll use — descriptions cost context</li>
+          <li>Write clear <code class="inline">description</code>s so skills trigger at the right time</li>
+          <li>Check <code class="inline">/hooks</code> and <code class="inline">/plugin</code> periodically</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-num">14</div>
+  </section>
+
+  <!-- 15. Cheat sheet -->
+  <section class="slide">
+    <div class="eyebrow">Recap</div>
+    <h2>Cheat sheet</h2>
+    <div class="grid grid-2">
+      <div>
+        <div class="file-label">Skills</div>
+<pre><span class="p">/plugin marketplace add</span> anthropics/skills
+<span class="p">/plugin install</span> document-skills@anthropic-agent-skills
+<span class="p">/plugin</span>                       <span class="c"># browse / manage</span>
+
+~/.claude/skills/&lt;name&gt;/SKILL.md   <span class="c"># personal</span>
+.claude/skills/&lt;name&gt;/SKILL.md     <span class="c"># project</span>
+
+<span class="p">/skill-name</span>                   <span class="c"># invoke explicitly</span></pre>
+      </div>
+      <div>
+        <div class="file-label">Hooks</div>
+<pre><span class="p">/hooks</span>                        <span class="c"># view / add hooks</span>
+
+~/.claude/settings.json          <span class="c"># personal</span>
+.claude/settings.json            <span class="c"># project (shared)</span>
+.claude/settings.local.json      <span class="c"># project (just you)</span>
+
+event → matcher → command
+exit 0 = ok  ·  exit 2 = block + feedback</pre>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:36px"><span class="hl">Skills</span> teach Claude <i>how</i>.
+      <span class="hl2">Hooks</span> guarantee <i>that</i>. Together they turn a general agent into <i>your</i> agent.</p>
+    <div class="slide-num">15</div>
+  </section>
+
+</main>
+
+<script>
+  // Keyboard navigation + progress bar (the deck also works with plain scrolling)
+  const slides = [...document.querySelectorAll('.slide')];
+  const bar = document.getElementById('progress');
+
+  function current() {
+    const mid = window.scrollY + window.innerHeight / 2;
+    return Math.max(0, slides.findIndex(s => s.offsetTop + s.offsetHeight > mid));
+  }
+
+  function go(i) {
+    const t = slides[Math.min(Math.max(i, 0), slides.length - 1)];
+    t.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); go(current() + 1); }
+    if (['ArrowLeft', 'PageUp'].includes(e.key))    { e.preventDefault(); go(current() - 1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End')  { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  window.addEventListener('scroll', () => {
+    bar.style.width = ((current() + 1) / slides.length * 100) + '%';
+  }, { passive: true });
+  bar.style.width = (1 / slides.length * 100) + '%';
+</script>
+</body>
+</html>

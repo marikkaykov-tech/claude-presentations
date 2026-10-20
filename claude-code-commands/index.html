@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code Slash Commands</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+
+  <main class="deck">
+
+    <!-- 1. Title -->
+    <section class="slide title-slide">
+      <div class="slide-inner">
+        <p class="eyebrow">A practical guide</p>
+        <h1>Mastering <span>/slash</span> commands<br>in Claude Code</h1>
+        <p class="lead">Every built-in command you need in the terminal: what it does, when to reach for it, and how to use it on a real project, from the first <code>/init</code> to custom commands of your own.</p>
+        <div class="prompt-line"><span class="caret">&gt;</span> /help <span class="cursor"></span></div>
+      </div>
+    </section>
+
+    <!-- 2. Agenda -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">Agenda</p>
+        <h2>What we'll cover</h2>
+        <p class="lead">Click any topic to jump to it, or use the ← → arrow keys.</p>
+        <ul class="agenda">
+          <li data-goto="3"><span>01</span>How slash commands work</li>
+          <li data-goto="4"><span>02</span>Getting started</li>
+          <li data-goto="5"><span>03</span>Managing the session</li>
+          <li data-goto="6"><span>04</span>Context, cost &amp; usage</li>
+          <li data-goto="7"><span>05</span>Memory &amp; CLAUDE.md</li>
+          <li data-goto="8"><span>06</span>Configuration</li>
+          <li data-goto="9"><span>07</span>Extending Claude Code</li>
+          <li data-goto="10"><span>08</span>Code review &amp; Git</li>
+          <li data-goto="11"><span>09</span>Diagnostics &amp; help</li>
+          <li data-goto="12"><span>10</span>Building custom commands</li>
+          <li data-goto="13"><span>11</span>Shortcuts &amp; prefixes</li>
+          <li data-goto="14"><span>12</span>Walkthrough: a real project</li>
+          <li data-goto="15"><span>13</span>Cheat sheet</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. Basics -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">01 · Basics</p>
+        <h2>How slash commands work</h2>
+        <p class="lead">A slash command is an instruction to Claude Code itself, not a message to the model. Type <code>/</code> at the start of the prompt and a menu opens.</p>
+        <div class="split">
+          <ol class="steps">
+            <li><div><h3>Type <code>/</code></h3><p>An autocomplete list appears with every available command and a short description.</p></div></li>
+            <li><div><h3>Filter by typing</h3><p>Type <code>/com</code> and the list narrows to <code>/compact</code>, <code>/config</code>, and so on. Use ↑ ↓ and Tab to pick one.</p></div></li>
+            <li><div><h3>Add arguments</h3><p>Many commands take text after them, for example <code>/compact focus on the auth bug</code>.</p></div></li>
+            <li><div><h3>Press Enter</h3><p>The command runs right away. Some open an interactive panel you leave with Esc.</p></div></li>
+          </ol>
+          <div>
+            <div class="terminal"><span class="c"># Start Claude Code in your project folder</span>
+<span class="p">$</span> cd my-project
+<span class="p">$</span> claude
+
+<span class="c"># Inside the session</span>
+<span class="p">&gt;</span> /help          <span class="c">← list every command</span>
+<span class="p">&gt;</span> /model         <span class="c">← opens a picker</span>
+<span class="p">&gt;</span> /compact keep the API notes
+                 <span class="c">← command + argument</span></div>
+            <div class="tip"><strong>Three kinds of commands:</strong> built-in ones (shipped with Claude Code), custom ones you write in <code>.claude/commands/</code>, and ones added by plugins and MCP servers.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Getting started -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">02 · Getting started</p>
+        <h2>The first commands in a new project</h2>
+        <p class="lead">Run these once when you open a project for the first time.</p>
+        <div class="grid">
+          <div class="card">
+            <div class="cmd">/init</div>
+            <p>Scans the codebase and writes a <code>CLAUDE.md</code> file describing the project: its structure, build and test commands, and conventions. Claude reads this file at the start of every session.</p>
+            <div class="when"><b>When:</b> the first time you use Claude Code in a repository.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/login · /logout</div>
+            <p>Sign in with your Claude account or API key, or sign out. Use these to switch between accounts, for example personal and work.</p>
+            <div class="when"><b>When:</b> first launch, or when changing accounts.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/help</div>
+            <p>Lists every command available in the current session, including your custom and plugin commands.</p>
+            <div class="when"><b>When:</b> whenever you forget a command name.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/terminal-setup</div>
+            <p>Sets up Shift+Enter for new lines in terminals that need it, such as VS Code's terminal, so you can write multi-line prompts.</p>
+            <div class="when"><b>When:</b> Shift+Enter sends the message instead of adding a line.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Session -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">03 · Session</p>
+        <h2>Managing the conversation</h2>
+        <p class="lead">A long session fills Claude's context window. These commands start fresh, shrink, rewind, or resume a conversation.</p>
+        <div class="grid">
+          <div class="card">
+            <div class="cmd">/clear</div>
+            <p>Wipes the conversation history. CLAUDE.md and your settings stay. The cleanest way to begin an unrelated task.</p>
+            <div class="when"><b>When:</b> switching to a new task. Old context only distracts.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/compact [instructions]</div>
+            <p>Replaces the history with a summary so you keep working with room to spare. Add text to say what the summary must keep.</p>
+            <div class="terminal">&gt; /compact keep the DB schema and open TODOs</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/resume</div>
+            <p>Opens a list of past conversations in this project so you can continue one. From the shell, <code>claude --continue</code> reopens the latest.</p>
+            <div class="when"><b>When:</b> picking up yesterday's work.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/rewind</div>
+            <p>Goes back to an earlier point in the conversation and can undo the file changes Claude made after it. Pressing Esc twice opens the same menu.</p>
+            <div class="when"><b>When:</b> Claude went the wrong way and you want to try again.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/export</div>
+            <p>Saves the current conversation to a file or copies it to the clipboard, for notes, docs, or sharing with a teammate.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/exit</div>
+            <p>Quits Claude Code. Pressing Ctrl+C twice does the same.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Context & cost -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">04 · Context &amp; cost</p>
+        <h2>Knowing where you stand</h2>
+        <p class="lead">Check these before the context window fills or you reach a usage limit.</p>
+        <div class="grid">
+          <div class="card">
+            <div class="cmd">/context</div>
+            <p>Shows a chart of what fills the context window: system prompt, tools, MCP servers, memory files, and messages.</p>
+            <div class="when"><b>When:</b> answers get worse, or you want to know which MCP server takes the most space.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/cost</div>
+            <p>Token usage and estimated spend for the current session. Most useful when you pay per token with an API key.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/usage</div>
+            <p>Shows how much of your plan's limits you have used and when they reset (Pro and Max subscriptions).</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/status</div>
+            <p>Version, signed-in account, current model, working directory, and connection status, all on one screen.</p>
+          </div>
+        </div>
+        <div class="tip"><strong>Rule of thumb:</strong> when <code>/context</code> shows the window is mostly full, run <code>/compact</code> if the task continues, or <code>/clear</code> if a new task starts.</div>
+      </div>
+    </section>
+
+    <!-- 7. Memory -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">05 · Memory</p>
+        <h2>Teaching Claude about your project</h2>
+        <p class="lead">Memory is plain Markdown that Claude loads at the start of each session. Store your rules there once instead of repeating them.</p>
+        <div class="split">
+          <div>
+            <div class="card">
+              <div class="cmd">/memory</div>
+              <p>Opens your memory files in an editor. You choose which one:</p>
+              <div class="table-wrap" style="margin-top:12px">
+                <table>
+                  <tr><th>File</th><th>Scope</th></tr>
+                  <tr><td>./CLAUDE.md</td><td>This project, shared with the team in git</td></tr>
+                  <tr><td>./CLAUDE.local.md</td><td>This project, only you (add it to .gitignore)</td></tr>
+                  <tr><td>~/.claude/CLAUDE.md</td><td>All your projects</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="terminal"><span class="c"># CLAUDE.md example</span>
+# My Shop API
+
+## Commands
+- Run dev server: npm run dev
+- Run tests: npm test
+
+## Rules
+- Use TypeScript, never plain JS
+- Every new endpoint needs a test
+- Do not edit files in /legacy</div>
+            <div class="tip"><strong>Tip:</strong> keep CLAUDE.md short and specific. Claude follows "Run <code>npm test</code> before committing" better than "write good code".</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Configuration -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">06 · Configuration</p>
+        <h2>Making Claude Code yours</h2>
+        <div class="grid" style="margin-top:20px">
+          <div class="card">
+            <div class="cmd">/model</div>
+            <p>Switch models mid-session: Opus for hard reasoning, Sonnet for everyday coding, Haiku for fast, simple tasks.</p>
+            <div class="terminal">&gt; /model sonnet</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/config</div>
+            <p>Opens the settings panel: theme, auto-compact, notifications, editor mode, and more.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/permissions</div>
+            <p>Sets which tools Claude may use without asking, for example allowing <code>npm test</code> and always asking before <code>git push</code>.</p>
+            <div class="when"><b>When:</b> you approve the same harmless command over and over.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/statusline</div>
+            <p>Creates a custom status bar under the prompt showing model, git branch, context use, or anything a script prints.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/vim</div>
+            <p>Turns on Vim keybindings for editing the prompt (normal and insert modes). Run it again to turn them off.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/add-dir</div>
+            <p>Lets Claude work in another folder too, such as a shared library next to your app.</p>
+            <div class="terminal">&gt; /add-dir ../shared-utils</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Extending -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">07 · Extending</p>
+        <h2>Agents, tools, hooks &amp; plugins</h2>
+        <p class="lead">These commands connect Claude Code to more tools and automate parts of your workflow.</p>
+        <div class="grid">
+          <div class="card">
+            <div class="cmd">/mcp</div>
+            <p>Manages MCP servers, which give Claude new tools such as databases, browsers, GitHub, or Figma. Shows status, lets you sign in, and lists each server's tools.</p>
+            <div class="terminal"><span class="c"># add one from the shell first</span>
+$ claude mcp add github ...
+<span class="c"># then inside Claude</span>
+&gt; /mcp</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/agents</div>
+            <p>Creates and edits subagents: helpers with their own instructions, tools, and context, such as a "test-writer" or "code-reviewer".</p>
+            <div class="when"><b>When:</b> a task repeats and needs a focused specialist.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/hooks</div>
+            <p>Sets up shell commands that run automatically on events, such as running Prettier after every file edit or blocking edits to <code>.env</code>.</p>
+            <div class="when"><b>When:</b> something must always happen, without relying on Claude remembering it.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/plugin</div>
+            <p>Browse, install, and manage plugins, which bundle commands, agents, hooks, and MCP servers into one install.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/ide</div>
+            <p>Connects to VS Code or JetBrains so Claude sees your open file and selection, and shows diffs in the editor.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/install-github-app</div>
+            <p>Sets up the Claude GitHub app so you can mention <code>@claude</code> in issues and pull requests.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. Review & Git -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">08 · Code quality</p>
+        <h2>Reviewing code before you ship</h2>
+        <div class="grid" style="margin-top:20px">
+          <div class="card">
+            <div class="cmd">/code-review [level]</div>
+            <p>Reviews your current changes or a pull request for bugs. The level (low, medium, high, ...) sets how deep it goes. <code>--fix</code> applies the fixes it finds.</p>
+            <div class="terminal">&gt; /code-review high
+&gt; /code-review 42 --comment</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/security-review</div>
+            <p>Checks pending changes for security problems: injection, leaked secrets, unsafe authentication, and similar issues.</p>
+            <div class="when"><b>When:</b> before merging anything that handles user input or credentials.</div>
+          </div>
+          <div class="card">
+            <div class="cmd">/simplify</div>
+            <p>Looks over the changed code for duplication and needless complexity, then makes the cleanups.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/pr-comments</div>
+            <p>Fetches the review comments on a GitHub pull request so Claude can address them one by one.</p>
+          </div>
+        </div>
+        <div class="tip"><strong>Workflow:</strong> write the feature → <code>/code-review</code> → fix → <code>/security-review</code> → ask Claude to commit and open a pull request.</div>
+      </div>
+    </section>
+
+    <!-- 11. Diagnostics -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">09 · Diagnostics</p>
+        <h2>When something isn't working</h2>
+        <div class="grid" style="margin-top:20px">
+          <div class="card">
+            <div class="cmd">/doctor</div>
+            <p>Checks your installation: version, install method, settings files, and other common problems. Run this first when something breaks.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/bug · /feedback</div>
+            <p>Sends a bug report or feedback to Anthropic, with the option to include the conversation.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/release-notes</div>
+            <p>Shows what changed in recent versions. Worth a look after an update.</p>
+          </div>
+          <div class="card">
+            <div class="cmd">/status</div>
+            <p>Confirms which account, model, and directory you're using. It answers most "why is it behaving like that?" questions.</p>
+          </div>
+        </div>
+        <div class="tip"><strong>Troubleshooting order:</strong> <code>/status</code> → <code>/doctor</code> → <code>/mcp</code> (if a tool is missing) → <code>/context</code> (if answers got worse).</div>
+      </div>
+    </section>
+
+    <!-- 12. Custom commands -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">10 · Custom commands</p>
+        <h2>Write your own slash commands</h2>
+        <p class="lead">Any Markdown file in a commands folder becomes a slash command. The file's text is the prompt Claude receives.</p>
+        <div class="split">
+          <ol class="steps">
+            <li><div><h3>Create the folder</h3><p><code>.claude/commands/</code> in the project (shared with the team), or <code>~/.claude/commands/</code> (only you, all projects).</p></div></li>
+            <li><div><h3>Add a .md file</h3><p>The file name becomes the command name: <code>fix-issue.md</code> → <code>/fix-issue</code>.</p></div></li>
+            <li><div><h3>Use $ARGUMENTS</h3><p>Whatever you type after the command replaces <code>$ARGUMENTS</code>. <code>$1</code>, <code>$2</code> pick out single arguments.</p></div></li>
+            <li><div><h3>Run it</h3><p><code>/fix-issue 123</code>. Commit the folder so the whole team gets the command.</p></div></li>
+          </ol>
+          <div>
+            <div class="terminal"><span class="c"># .claude/commands/fix-issue.md</span>
+---
+description: Fix a GitHub issue end to end
+allowed-tools: Bash(gh:*), Edit, Read
+---
+
+Fix GitHub issue #$ARGUMENTS.
+
+1. Run `gh issue view $ARGUMENTS`
+2. Find the relevant code
+3. Write a failing test first
+4. Implement the fix
+5. Run the tests and show results</div>
+            <div class="tip"><strong>Frontmatter</strong> (between the <code>---</code> lines) is optional. <code>description</code> shows in the <code>/</code> menu, and <code>allowed-tools</code> sets what the command may run without asking.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. Shortcuts -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">11 · Shortcuts</p>
+        <h2>Prefixes &amp; keys that work with commands</h2>
+        <div class="table-wrap" style="margin-top:20px">
+          <table>
+            <tr><th>Input</th><th>What it does</th><th>Example</th></tr>
+            <tr><td>/</td><td>Opens the command menu</td><td><code>/compact</code></td></tr>
+            <tr><td>!</td><td>Runs a shell command directly; its output goes into the conversation</td><td><code>! npm test</code></td></tr>
+            <tr><td>@</td><td>Mentions a file or folder so Claude reads it</td><td><code>explain @src/auth.ts</code></td></tr>
+            <tr><td>Shift+Tab</td><td>Cycles permission modes: normal → auto-accept edits → plan mode</td><td>Plan first, then build</td></tr>
+            <tr><td>Esc</td><td>Stops Claude mid-response</td><td>Interrupt a wrong direction</td></tr>
+            <tr><td>Esc Esc</td><td>Opens the rewind menu (same as <code>/rewind</code>)</td><td>Undo the last steps</td></tr>
+            <tr><td>Ctrl+R</td><td>Searches your prompt history</td><td>Reuse an old prompt</td></tr>
+            <tr><td>↑ / ↓</td><td>Moves through previous prompts</td><td>Edit and resend</td></tr>
+            <tr><td>Ctrl+C ×2</td><td>Exits Claude Code</td><td>Same as <code>/exit</code></td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. Walkthrough -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">12 · Walkthrough</p>
+        <h2>Putting it together on a real project</h2>
+        <p class="lead">One feature from start to finish, using the commands in the order you'd actually reach for them.</p>
+        <div class="split">
+          <ol class="steps">
+            <li><div><h3>Open &amp; orient</h3><p><code>claude</code> in the repo → <code>/init</code> to create CLAUDE.md → read it and fix anything wrong.</p></div></li>
+            <li><div><h3>Plan</h3><p>Press Shift+Tab into plan mode and describe the feature. Claude explores the code and proposes a plan without editing anything.</p></div></li>
+            <li><div><h3>Build</h3><p>Approve the plan. Use <code>@file</code> to point at key files and <code>! npm test</code> to run tests yourself.</p></div></li>
+            <li><div><h3>Stay lean</h3><p>Check <code>/context</code>. If it's getting full, <code>/compact keep the plan and failing tests</code>.</p></div></li>
+            <li><div><h3>Review &amp; ship</h3><p><code>/code-review</code> → <code>/security-review</code> → "commit and open a PR".</p></div></li>
+            <li><div><h3>Reset</h3><p><code>/clear</code> before the next, unrelated task.</p></div></li>
+          </ol>
+          <div class="terminal"><span class="p">$</span> cd todo-app &amp;&amp; claude
+<span class="p">&gt;</span> /init
+  <span class="c">✓ Created CLAUDE.md</span>
+
+<span class="c">[Shift+Tab → plan mode]</span>
+<span class="p">&gt;</span> Add due dates to tasks, with a
+  date picker and overdue highlight
+
+  <span class="c">Plan: 1) migration  2) API field
+        3) UI picker  4) tests</span>
+<span class="c">[approve]</span>
+
+<span class="p">&gt;</span> ! npm test
+  <span class="c">✓ 48 passed</span>
+
+<span class="p">&gt;</span> /context
+  <span class="c">Messages ████████░░ 78%</span>
+<span class="p">&gt;</span> /compact keep the migration notes
+
+<span class="p">&gt;</span> /code-review
+  <span class="c">1 finding: missing timezone check</span>
+<span class="p">&gt;</span> fix that, then commit and open a PR
+<span class="p">&gt;</span> /clear</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. Cheat sheet -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow">13 · Cheat sheet</p>
+        <h2>All the commands at a glance</h2>
+        <div class="table-wrap" style="margin-top:20px">
+          <table>
+            <tr><th>Command</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td>/init</td><td>Generate CLAUDE.md for the project</td><td>Start</td></tr>
+            <tr><td>/help</td><td>List all commands</td><td>Start</td></tr>
+            <tr><td>/login · /logout</td><td>Sign in / out, switch accounts</td><td>Start</td></tr>
+            <tr><td>/clear</td><td>Fresh conversation</td><td>Session</td></tr>
+            <tr><td>/compact</td><td>Summarize history to free context</td><td>Session</td></tr>
+            <tr><td>/resume</td><td>Continue a past conversation</td><td>Session</td></tr>
+            <tr><td>/rewind</td><td>Roll back conversation and file edits</td><td>Session</td></tr>
+            <tr><td>/export</td><td>Save the conversation</td><td>Session</td></tr>
+            <tr><td>/context</td><td>See what fills the context window</td><td>Insight</td></tr>
+            <tr><td>/cost · /usage</td><td>Spend and plan limits</td><td>Insight</td></tr>
+            <tr><td>/status</td><td>Account, model, version</td><td>Insight</td></tr>
+            <tr><td>/memory</td><td>Edit CLAUDE.md memory files</td><td>Memory</td></tr>
+            <tr><td>/model</td><td>Switch model</td><td>Config</td></tr>
+            <tr><td>/config</td><td>Settings panel</td><td>Config</td></tr>
+            <tr><td>/permissions</td><td>Allow or deny tools</td><td>Config</td></tr>
+            <tr><td>/add-dir</td><td>Give Claude access to another folder</td><td>Config</td></tr>
+            <tr><td>/mcp</td><td>Manage MCP tool servers</td><td>Extend</td></tr>
+            <tr><td>/agents</td><td>Create subagents</td><td>Extend</td></tr>
+            <tr><td>/hooks</td><td>Automate on events</td><td>Extend</td></tr>
+            <tr><td>/plugin</td><td>Install plugins</td><td>Extend</td></tr>
+            <tr><td>/code-review</td><td>Find bugs in changes</td><td>Quality</td></tr>
+            <tr><td>/security-review</td><td>Find security issues</td><td>Quality</td></tr>
+            <tr><td>/doctor</td><td>Diagnose the install</td><td>Debug</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. End -->
+    <section class="slide title-slide">
+      <div class="slide-inner">
+        <p class="eyebrow">You're ready</p>
+        <h1>Start with <span>/init</span>,<br>end with <span>/clear</span>.</h1>
+        <p class="lead">You don't need to memorize this deck. Type <code>/</code> and the menu lists every command. Learn five commands well (<code>/init</code>, <code>/clear</code>, <code>/compact</code>, <code>/context</code>, <code>/model</code>) and pick up the rest as you need them.</p>
+        <div class="prompt-line"><span class="caret">&gt;</span> / <span class="cursor"></span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="controls">
+    <button id="prev" aria-label="Previous slide">← Prev</button>
+    <span class="hint">Arrow keys · Space · swipe</span>
+    <span class="counter" id="counter">1 / 16</span>
+    <button id="next" aria-label="Next slide">Next →</button>
+  </nav>
+
+  <script src="script.js"></script>
+</body>
+</html>
