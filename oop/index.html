@@ -1,0 +1,1107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OOP Practice Class</title>
+<style>
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --text: #f1f5f9; --muted: #a8b5c9;
+    --accent: #38bdf8; --accent2: #c4b5fd; --good: #4ade80; --warn: #fbbf24; --bad: #f87171;
+    --code-bg: #0a101f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center;
+    gap: 2vh; padding: 5vh 6vw 8vh; overflow-y: auto;
+  }
+  .slide.active { display: flex; animation: in .25s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .slide.active { animation: none; } }
+
+  h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.05; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); color: var(--accent); line-height: 1.1; }
+  h3 { font-size: clamp(1.1rem, 1.7vw, 1.4rem); color: var(--accent2); }
+  p, li { font-size: clamp(1rem, 1.6vw, 1.3rem); line-height: 1.45; }
+  ul { padding-left: 1.3em; display: grid; gap: 1vh; }
+  .muted { color: var(--muted); }
+  b { color: var(--warn); font-weight: 600; }
+  .tag { align-self: flex-start; font-size: .9rem; letter-spacing: .08em; text-transform: uppercase;
+         padding: .3em .9em; border-radius: 99px; font-weight: 700; }
+  .tag.syn { background: rgba(56,189,248,.18); color: var(--accent); }
+  .tag.ex  { background: rgba(251,191,36,.18); color: var(--warn); }
+  .tag.info { background: rgba(196,181,253,.18); color: var(--accent2); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.6vw; }
+  .split { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2.4vw; align-items: start; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border-radius: 16px; padding: 1.1em 1.3em; }
+  .card h3 { margin-bottom: .3em; }
+  .card p, .card li { font-size: clamp(.95rem, 1.4vw, 1.15rem); }
+
+  pre { background: var(--code-bg); border: 1px solid #243047; border-radius: 14px; padding: .9em 1.2em;
+        font: clamp(.9rem, 1.35vw, 1.15rem)/1.5 Consolas, "Cascadia Code", monospace; overflow-x: auto; color: #dbe4f0; }
+  code { font-family: Consolas, "Cascadia Code", monospace; color: var(--accent); font-size: .95em; }
+  pre code { color: inherit; font-size: inherit; }
+  .k { color: #f472b6; } .s { color: #86efac; } .c { color: #6b7d99; font-style: italic; }
+  .f { color: #7dd3fc; } .n { color: #fbbf24; } .d { color: #fdba74; }
+  .out { color: var(--good); }
+  .out::before { content: "Output → "; color: var(--muted); }
+
+  details { background: var(--panel); border-radius: 14px; padding: .7em 1.2em; }
+  summary { cursor: pointer; font-weight: 700; color: var(--good); font-size: clamp(1rem, 1.5vw, 1.2rem); }
+  details[open] summary { margin-bottom: .6em; }
+  details pre { font-size: clamp(.85rem, 1.25vw, 1.05rem); }
+
+  .bar { position: fixed; left: 0; top: 0; height: 5px; background: var(--accent); transition: width .25s; }
+  .nav { position: fixed; bottom: 1.6vh; right: 2.5vw; display: flex; gap: .6em; align-items: center; color: var(--muted); font-size: 1.1rem; }
+  .nav button { background: var(--panel); color: var(--text); border: 0; border-radius: 10px; width: 2.6em; height: 2.6em; font-size: 1.1rem; cursor: pointer; }
+  .nav button:hover { background: #334155; }
+  button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .title-slide h1 span { color: var(--accent); }
+  .pill-row { display: flex; flex-wrap: wrap; gap: .7em; }
+  .pill { background: var(--panel); padding: .4em 1.1em; border-radius: 99px; font-size: clamp(1rem, 1.5vw, 1.2rem); }
+  .wrong { color: var(--bad); } .right { color: var(--good); }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: .45em .8em; font-size: clamp(.95rem, 1.4vw, 1.15rem); border-bottom: 1px solid #2b3a52; }
+  th { color: var(--accent2); }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<main id="deck">
+
+<!-- 1 -->
+<section class="slide title-slide">
+  <span class="tag syn">Practice class</span>
+  <h1>Object-Oriented<br><span>Programming</span></h1>
+  <p class="muted">Syntax refreshers + hands-on exercises, in Python</p>
+  <p class="muted">← → or Space: navigate · S: show/hide solution · F: fullscreen</p>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <h2>Today's plan</h2>
+  <div class="grid">
+    <div class="card"><h3>1 · Classes</h3><p>syntax, attributes, methods</p></div>
+    <div class="card"><h3>2 · Encapsulation</h3><p>_private, @property</p></div>
+    <div class="card"><h3>3 · Inheritance</h3><p>super(), overriding</p></div>
+    <div class="card"><h3>4 · Polymorphism</h3><p>one call, many behaviors</p></div>
+    <div class="card"><h3>5 · The @ decorators</h3><p>@classmethod, @staticmethod, @dataclass</p></div>
+    <div class="card"><h3>6 · Nested classes</h3><p>a class inside a class</p></div>
+    <div class="card"><h3>7 · Dunder + ABC</h3><p>__add__, abstract classes</p></div>
+    <div class="card"><h3>8 · Mini project</h3><p>design a system in pairs</p></div>
+  </div>
+  <p class="muted">Every topic: <b>syntax reminder</b> → <b>exercise</b> → <b>solution</b>. Try first, then reveal.</p>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <span class="tag info">Why OOP</span>
+  <h2>Data and behavior, together</h2>
+  <div class="grid">
+    <div class="card"><h3>Without OOP</h3>
+      <pre><code>name1 = "Rex"
+age1 = 3
+name2 = "Luna"
+age2 = 5
+def describe(name, age): ...</code></pre></div>
+    <div class="card"><h3>With OOP</h3>
+      <pre><code>rex = Dog("Rex", 3)
+luna = Dog("Luna", 5)
+rex.describe()</code></pre></div>
+  </div>
+  <ul>
+    <li><b>Class</b> = blueprint · <b>Object</b> = one instance built from it</li>
+    <li><b>Attributes</b> = the data · <b>Methods</b> = the functions that act on it</li>
+  </ul>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Defining a class</h2>
+  <div class="split">
+<pre><code>class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def bark(self):
+        return f"{self.name} says woof"
+
+rex = Dog("Rex", 3)
+print(rex.bark())</code></pre>
+    <ul>
+      <li><code>class Name:</code> starts a class (CamelCase)</li>
+      <li><code>__init__</code> runs automatically on creation</li>
+      <li><code>self</code> = the object itself; always the first parameter</li>
+      <li><code>self.name = ...</code> creates an attribute</li>
+      <li><code>Dog(...)</code> builds an object; no <code>new</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Instance vs. class attributes</h2>
+  <div class="split">
+<pre><code>class Dog:
+    species = "Canine"      # class attr
+    count = 0
+
+    def __init__(self, name):
+        self.name = name    # instance attr
+        Dog.count += 1
+
+a = Dog("Rex")
+b = Dog("Luna")
+print(Dog.count)   # 2
+print(a.species)   # Canine</code></pre>
+    <ul>
+      <li><b>Instance attribute</b>: each object has its own copy (set via <code>self.</code>)</li>
+      <li><b>Class attribute</b>: one value shared by all objects (set in the class body)</li>
+      <li>Change a shared value through the class: <code>Dog.count</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Methods and printing</h2>
+  <div class="split">
+<pre><code>class Rectangle:
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+
+    def area(self):
+        return self.w * self.h
+
+    def __str__(self):
+        return f"Rect({self.w}x{self.h})"
+
+r = Rectangle(3, 4)
+print(r.area())   # 12
+print(r)          # Rect(3x4)</code></pre>
+    <ul>
+      <li>Call a method: <code>obj.method()</code>; Python passes <code>self</code> for you</li>
+      <li>Inside the class, reach other members with <code>self.</code></li>
+      <li><code>__str__</code> controls what <code>print(obj)</code> shows</li>
+      <li>Without it you get <code>&lt;Rectangle object at 0x...&gt;</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- extra: stack -->
+<section class="slide">
+  <span class="tag syn">Worked example</span>
+  <h2>A Stack class</h2>
+  <div class="split">
+<pre><code>class Stack:
+    def __init__(self):
+        self.items = []
+
+    def push(self, x):
+        self.items.append(x)
+
+    def pop(self):
+        return self.items.pop()
+
+    def is_empty(self):
+        return len(self.items) == 0
+
+s = Stack()
+s.push(1); s.push(2)
+print(s.pop())       # 2
+print(s.is_empty())  # False</code></pre>
+    <ul>
+      <li>The list is the <b>data</b>; push/pop/is_empty are the <b>behavior</b></li>
+      <li>The caller never touches <code>items</code> directly</li>
+      <li>Each <code>Stack()</code> has its own list, because it is created in <code>__init__</code></li>
+      <li>Same pattern fits Queue, Playlist, Cart, Inventory</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <span class="tag ex">Exercise 1 · warm-up</span>
+  <h2>Class or object?</h2>
+<pre><code>class Student: ...
+s = Student()
+t = Student()
+x = Student</code></pre>
+  <ul>
+    <li>Which names hold objects, and which hold a class?</li>
+    <li>Is <code>s is t</code> True or False? Why?</li>
+    <li>What is <code>type(s)</code>?</li>
+  </ul>
+  <details><summary>Solution</summary>
+    <p><code>s</code> and <code>t</code> are two separate objects. <code>Student</code> and <code>x</code> both refer to the class (no parentheses, so nothing was created). <code>s is t</code> is <b>False</b>. <code>type(s)</code> is <code>&lt;class 'Student'&gt;</code>.</p>
+  </details>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+  <span class="tag ex">Exercise 2 · classes</span>
+  <h2>Student with an average</h2>
+  <ul>
+    <li>Class <code>Student</code> with <code>name</code> and a list <code>marks</code></li>
+    <li>Method <code>average()</code> returns the mean of the marks</li>
+    <li>Method <code>add_mark(m)</code> appends a mark</li>
+  </ul>
+<pre><code>s = Student("Dana", [80, 90])
+s.add_mark(100)
+print(s.average())</code></pre>
+  <p class="out">90.0</p>
+  <details><summary>Solution</summary>
+<pre><code>class Student:
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = marks
+
+    def add_mark(self, m):
+        self.marks.append(m)
+
+    def average(self):
+        return sum(self.marks) / len(self.marks)</code></pre>
+  </details>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <span class="tag ex">Exercise 3 · classes</span>
+  <h2>Bank account</h2>
+  <ul>
+    <li><code>BankAccount(owner, balance=0)</code></li>
+    <li><code>deposit(amount)</code> and <code>withdraw(amount)</code></li>
+    <li>Withdrawing more than the balance must <b>not</b> change it; print "Insufficient funds"</li>
+    <li>Add <code>__str__</code>: <code>Dana: 150</code></li>
+  </ul>
+<pre><code>acc = BankAccount("Dana", 100)
+acc.deposit(100)
+acc.withdraw(500)
+print(acc)</code></pre>
+  <p class="out">Insufficient funds · Dana: 200</p>
+  <details><summary>Solution</summary>
+<pre><code>class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount &gt; self.balance:
+            print("Insufficient funds")
+        else:
+            self.balance -= amount
+
+    def __str__(self):
+        return f"{self.owner}: {self.balance}"</code></pre>
+  </details>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <span class="tag ex">Exercise 4 · class attributes</span>
+  <h2>Count the objects</h2>
+  <ul>
+    <li>Class <code>Player</code> with a <b>class attribute</b> <code>total = 0</code></li>
+    <li>Every time a Player is created, <code>total</code> goes up by 1</li>
+    <li>Predict the output:</li>
+  </ul>
+<pre><code>a = Player("A")
+b = Player("B")
+c = Player("C")
+print(Player.total, a.total)</code></pre>
+  <details><summary>Solution</summary>
+<pre><code>class Player:
+    total = 0
+    def __init__(self, name):
+        self.name = name
+        Player.total += 1</code></pre>
+    <p class="out">3 3</p>
+    <p class="muted">Careful: <code>self.total += 1</code> would create a new instance attribute instead of updating the shared one.</p>
+  </details>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Encapsulation</h2>
+  <div class="split">
+<pre><code>class Account:
+    def __init__(self, balance):
+        self._balance = balance   # "internal"
+        self.__pin = 1234         # name-mangled
+
+    @property
+    def balance(self):            # getter
+        return self._balance
+
+    @balance.setter
+    def balance(self, value):     # setter
+        if value &lt; 0:
+            raise ValueError("negative")
+        self._balance = value
+
+acc = Account(50)
+acc.balance = 80      # setter runs
+acc.balance = -5      # ValueError</code></pre>
+    <ul>
+      <li><code>_x</code>: convention, "please don't touch"</li>
+      <li><code>__x</code>: Python renames it to <code>_Account__x</code></li>
+      <li><code>@property</code>: use it like an attribute, run code behind it</li>
+      <li><code>@x.setter</code>: validate on assignment</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+  <span class="tag ex">Exercise 5 · encapsulation</span>
+  <h2>Safe thermostat</h2>
+  <ul>
+    <li>Class <code>Thermostat</code>, starting at 20</li>
+    <li>Temperature must stay between <b>5 and 35</b></li>
+    <li>Anything else raises <code>ValueError("Temp must be 5-35")</code></li>
+    <li>Use a <b>property</b> with a setter, and validate in the constructor too</li>
+  </ul>
+<pre><code>t = Thermostat()
+t.temp = 25      # fine
+t.temp = -500    # ValueError</code></pre>
+  <details><summary>Solution</summary>
+<pre><code>class Thermostat:
+    def __init__(self, temp=20):
+        self.temp = temp          # goes through the setter
+
+    @property
+    def temp(self):
+        return self._temp
+
+    @temp.setter
+    def temp(self, value):
+        if not 5 &lt;= value &lt;= 35:
+            raise ValueError("Temp must be 5-35")
+        self._temp = value</code></pre>
+  </details>
+</section>
+
+<!-- decorators -->
+<section class="slide">
+  <span class="tag syn">Syntax · the @ symbol</span>
+  <h2>Decorators: what is <code>@</code>?</h2>
+  <div class="split">
+<pre><code>@decorator
+def f():
+    ...
+
+# means exactly the same as:
+def f():
+    ...
+f = decorator(f)</code></pre>
+    <ul>
+      <li>A <b>decorator</b> wraps a function or method and changes how it behaves</li>
+      <li>It sits on the line <b>directly above</b> the <code>def</code></li>
+      <li>In OOP you will mostly use the built-in ones below</li>
+    </ul>
+  </div>
+  <table>
+    <tr><th>Decorator</th><th>What it does</th></tr>
+    <tr><td><code>@property</code></td><td>method read like an attribute: <code>obj.x</code></td></tr>
+    <tr><td><code>@x.setter</code></td><td>runs on <code>obj.x = value</code></td></tr>
+    <tr><td><code>@staticmethod</code></td><td>no <code>self</code>; a plain function inside the class</td></tr>
+    <tr><td><code>@classmethod</code></td><td>gets the class (<code>cls</code>) instead of the object</td></tr>
+    <tr><td><code>@abstractmethod</code></td><td>children must implement it</td></tr>
+    <tr><td><code>@dataclass</code></td><td>auto-writes <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code></td></tr>
+  </table>
+</section>
+
+<!-- static/class method -->
+<section class="slide">
+  <span class="tag syn">Syntax · @staticmethod, @classmethod</span>
+  <h2>Three kinds of methods</h2>
+  <div class="split">
+<pre><code>class Person:
+    count = 0
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+        Person.count += 1
+
+    def greet(self):                 # instance method
+        return f"Hi, I'm {self.name}"
+
+    @classmethod
+    def from_string(cls, text):      # alt. constructor
+        name, age = text.split("-")
+        return cls(name, int(age))
+
+    @staticmethod
+    def is_adult(age):               # no self, no cls
+        return age &gt;= 18
+
+p = Person.from_string("Dana-25")
+print(Person.is_adult(p.age))        # True</code></pre>
+    <ul>
+      <li><b>Instance method</b>: first parameter <code>self</code>, works on one object</li>
+      <li><b>@classmethod</b>: first parameter <code>cls</code>, works on the class; great for alternative constructors</li>
+      <li><b>@staticmethod</b>: no special first parameter; a helper that belongs to the class by topic</li>
+      <li>Call the last two on the class: <code>Person.is_adult(20)</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ex static/class -->
+<section class="slide">
+  <span class="tag ex">Exercise · decorators</span>
+  <h2>Temperature helper</h2>
+  <ul>
+    <li>Class <code>Temperature</code> with a <code>celsius</code> attribute</li>
+    <li><code>@classmethod from_fahrenheit(cls, f)</code> returns a new Temperature</li>
+    <li><code>@staticmethod is_freezing(c)</code> returns <code>c &lt;= 0</code></li>
+    <li><code>@property fahrenheit</code> computes <code>c * 9/5 + 32</code></li>
+  </ul>
+<pre><code>t = Temperature.from_fahrenheit(212)
+print(t.celsius, t.fahrenheit)
+print(Temperature.is_freezing(-3))</code></pre>
+  <p class="out">100.0 212.0 · True</p>
+  <details><summary>Solution</summary>
+<pre><code>class Temperature:
+    def __init__(self, celsius):
+        self.celsius = celsius
+
+    @classmethod
+    def from_fahrenheit(cls, f):
+        return cls((f - 32) * 5 / 9)
+
+    @staticmethod
+    def is_freezing(c):
+        return c &lt;= 0
+
+    @property
+    def fahrenheit(self):
+        return self.celsius * 9 / 5 + 32</code></pre>
+  </details>
+</section>
+
+<!-- dataclass -->
+<section class="slide">
+  <span class="tag syn">Syntax · @dataclass</span>
+  <h2>Less boilerplate with dataclasses</h2>
+  <div class="split">
+<pre><code>from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int = 0
+
+p = Point(3)
+print(p)              # Point(x=3, y=0)
+print(p == Point(3))  # True</code></pre>
+    <ul>
+      <li>List fields with type hints; Python writes <code>__init__</code>, <code>__repr__</code> and <code>__eq__</code></li>
+      <li>Defaults work like in functions</li>
+      <li>Best for classes that mostly just <b>hold data</b></li>
+      <li>You can still add your own methods</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Inheritance</h2>
+  <div class="split">
+<pre><code>class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+
+    def speak(self):          # override
+        return "Woof"
+
+d = Dog("Rex", "Lab")
+print(d.name, d.speak())</code></pre>
+    <ul>
+      <li><code>class Child(Parent):</code></li>
+      <li>Child gets all parent attributes and methods</li>
+      <li><code>super().__init__(...)</code> runs the parent setup</li>
+      <li>Define the same method name to <b>override</b></li>
+      <li>Use for "is-a": a Dog <i>is an</i> Animal</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Checking types</h2>
+<pre><code>d = Dog("Rex", "Lab")
+
+type(d).__name__          # 'Dog'
+isinstance(d, Dog)        # True
+isinstance(d, Animal)     # True  (a Dog is an Animal)
+issubclass(Dog, Animal)   # True
+isinstance(Animal("x"), Dog)   # False</code></pre>
+  <ul>
+    <li><code>isinstance(obj, Class)</code> also accepts subclasses; <code>type(obj) == Class</code> does not</li>
+    <li>Prefer <code>isinstance</code> over comparing types</li>
+  </ul>
+</section>
+
+<!-- 15 -->
+<section class="slide">
+  <span class="tag ex">Exercise 6 · inheritance</span>
+  <h2>Media library</h2>
+  <ul>
+    <li>Base class <code>Media(title, year)</code> with <code>info()</code> returning "Title (year)"</li>
+    <li><code>Book</code> adds <code>author</code>; <code>DVD</code> adds <code>minutes</code></li>
+    <li>Each overrides <code>info()</code> and <b>reuses</b> the parent's with <code>super()</code></li>
+  </ul>
+<pre><code>print(Book("Dune", 1965, "Herbert").info())
+print(DVD("Alien", 1979, 117).info())</code></pre>
+  <p class="out">Dune (1965) by Herbert · Alien (1979), 117 min</p>
+  <details><summary>Solution</summary>
+<pre><code>class Media:
+    def __init__(self, title, year):
+        self.title, self.year = title, year
+    def info(self):
+        return f"{self.title} ({self.year})"
+
+class Book(Media):
+    def __init__(self, title, year, author):
+        super().__init__(title, year)
+        self.author = author
+    def info(self):
+        return super().info() + f" by {self.author}"
+
+class DVD(Media):
+    def __init__(self, title, year, minutes):
+        super().__init__(title, year)
+        self.minutes = minutes
+    def info(self):
+        return super().info() + f", {self.minutes} min"</code></pre>
+  </details>
+</section>
+
+<!-- 16 -->
+<section class="slide">
+  <span class="tag ex">Exercise 7 · predict</span>
+  <h2>What does this print?</h2>
+<pre><code>class A:
+    def hello(self):
+        return "A"
+
+class B(A):
+    def hello(self):
+        return "B+" + super().hello()
+
+class C(B):
+    pass
+
+print(C().hello())
+print(isinstance(C(), A))</code></pre>
+  <details><summary>Solution</summary>
+    <p class="out">B+A</p><p class="out">True</p>
+    <p><code>C</code> has no <code>hello</code>, so Python looks in <code>B</code> (found). <code>super()</code> inside <code>B</code> continues to <code>A</code>.</p>
+  </details>
+</section>
+
+<!-- 17 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Polymorphism</h2>
+  <div class="split">
+<pre><code>class Dog:
+    def speak(self): return "Woof"
+
+class Cat:
+    def speak(self): return "Meow"
+
+class Robot:               # not an Animal!
+    def speak(self): return "Beep"
+
+for x in [Dog(), Cat(), Robot()]:
+    print(x.speak())</code></pre>
+    <ul>
+      <li>Same method name, different behavior per class</li>
+      <li>The caller doesn't check the type, it just calls <code>speak()</code></li>
+      <li>Python is <b>duck typed</b>: if it has <code>speak()</code>, it works</li>
+      <li>Adding a new class needs no change to the loop</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="slide">
+  <span class="tag ex">Exercise 8 · polymorphism</span>
+  <h2>Shapes and total area</h2>
+  <ul>
+    <li><code>Circle(r)</code>, <code>Square(side)</code>, <code>Triangle(base, height)</code></li>
+    <li>Each has its own <code>area()</code></li>
+    <li>Write <code>total_area(shapes)</code> that works for any mix, with <b>no if/elif on type</b></li>
+  </ul>
+<pre><code>print(total_area([Square(2), Triangle(4, 3)]))</code></pre>
+  <p class="out">10.0</p>
+  <details><summary>Solution</summary>
+<pre><code>import math
+
+class Circle:
+    def __init__(self, r): self.r = r
+    def area(self): return math.pi * self.r ** 2
+
+class Square:
+    def __init__(self, s): self.s = s
+    def area(self): return self.s ** 2
+
+class Triangle:
+    def __init__(self, b, h): self.b, self.h = b, h
+    def area(self): return 0.5 * self.b * self.h
+
+def total_area(shapes):
+    return sum(s.area() for s in shapes)</code></pre>
+  </details>
+</section>
+
+<!-- 19 -->
+<section class="slide">
+  <span class="tag ex">Exercise 9 · polymorphism</span>
+  <h2>Employee pay</h2>
+  <ul>
+    <li><code>Employee(name)</code> base class with <code>pay()</code></li>
+    <li><code>FullTime(name, salary)</code>: pays <code>salary</code></li>
+    <li><code>PartTime(name, hours, rate)</code>: pays <code>hours * rate</code></li>
+    <li>Print every employee's pay from one loop</li>
+  </ul>
+<pre><code>staff = [FullTime("Dan", 5000), PartTime("Eli", 40, 30)]
+for e in staff:
+    print(e.name, e.pay())</code></pre>
+  <p class="out">Dan 5000 · Eli 1200</p>
+  <details><summary>Solution</summary>
+<pre><code>class Employee:
+    def __init__(self, name): self.name = name
+    def pay(self): raise NotImplementedError
+
+class FullTime(Employee):
+    def __init__(self, name, salary):
+        super().__init__(name); self.salary = salary
+    def pay(self): return self.salary
+
+class PartTime(Employee):
+    def __init__(self, name, hours, rate):
+        super().__init__(name); self.hours, self.rate = hours, rate
+    def pay(self): return self.hours * self.rate</code></pre>
+  </details>
+</section>
+
+<!-- 20 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Dunder (magic) methods</h2>
+  <table>
+    <tr><th>Method</th><th>Triggered by</th></tr>
+    <tr><td><code>__init__</code></td><td><code>Cls(...)</code></td></tr>
+    <tr><td><code>__str__</code> / <code>__repr__</code></td><td><code>print(obj)</code> / debugging</td></tr>
+    <tr><td><code>__len__</code></td><td><code>len(obj)</code></td></tr>
+    <tr><td><code>__add__</code></td><td><code>a + b</code></td></tr>
+    <tr><td><code>__eq__</code></td><td><code>a == b</code></td></tr>
+    <tr><td><code>__getitem__</code></td><td><code>obj[i]</code></td></tr>
+    <tr><td><code>__call__</code></td><td><code>obj(...)</code></td></tr>
+  </table>
+<pre><code>def __add__(self, other):
+    return Vector(self.x + other.x, self.y + other.y)</code></pre>
+</section>
+
+<!-- 21 -->
+<section class="slide">
+  <span class="tag ex">Exercise 10 · dunder</span>
+  <h2>Vector and shopping cart</h2>
+  <ul>
+    <li><code>Vector(x, y)</code> supports <code>v1 + v2</code> and prints as <code>(4, 6)</code></li>
+    <li><code>Cart</code> holds a list of items and supports <code>len(cart)</code></li>
+  </ul>
+<pre><code>print(Vector(1, 2) + Vector(3, 4))
+c = Cart(); c.add("milk"); c.add("eggs")
+print(len(c))</code></pre>
+  <p class="out">(4, 6) · 2</p>
+  <details><summary>Solution</summary>
+<pre><code>class Vector:
+    def __init__(self, x, y): self.x, self.y = x, y
+    def __add__(self, o): return Vector(self.x + o.x, self.y + o.y)
+    def __str__(self): return f"({self.x}, {self.y})"
+
+class Cart:
+    def __init__(self): self.items = []
+    def add(self, item): self.items.append(item)
+    def __len__(self): return len(self.items)</code></pre>
+  </details>
+</section>
+
+<!-- 22 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Abstraction with ABC</h2>
+  <div class="split">
+<pre><code>from abc import ABC, abstractmethod
+
+class Payment(ABC):
+    @abstractmethod
+    def pay(self, amount): ...
+
+class Card(Payment):
+    def pay(self, amount):
+        return f"Charged {amount}"
+
+Payment()   # TypeError
+Card().pay(50)</code></pre>
+    <ul>
+      <li>An abstract class is a <b>contract</b>: what children must do</li>
+      <li>Cannot be instantiated directly</li>
+      <li>A child that skips an <code>@abstractmethod</code> can't be created either</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 23 -->
+<section class="slide">
+  <span class="tag ex">Exercise 11 · abstraction</span>
+  <h2>Payment methods</h2>
+  <ul>
+    <li>Abstract <code>Payment</code> with <code>pay(amount)</code></li>
+    <li><code>Card</code>, <code>PayPal</code>, <code>Cash</code> implement it with different messages</li>
+    <li>What happens if <code>Cash</code> forgets to implement <code>pay</code>?</li>
+  </ul>
+  <details><summary>Solution</summary>
+<pre><code>from abc import ABC, abstractmethod
+
+class Payment(ABC):
+    @abstractmethod
+    def pay(self, amount): ...
+
+class Card(Payment):
+    def pay(self, amount): return f"Card: {amount}"
+class PayPal(Payment):
+    def pay(self, amount): return f"PayPal: {amount}"
+class Cash(Payment):
+    def pay(self, amount): return f"Cash: {amount}"</code></pre>
+    <p>Missing it → <code>TypeError: Can't instantiate abstract class Cash</code> when you create <code>Cash()</code>.</p>
+  </details>
+</section>
+
+<!-- 24 -->
+<section class="slide">
+  <span class="tag syn">Syntax</span>
+  <h2>Composition: "has-a"</h2>
+  <div class="split">
+<pre><code>class Engine:
+    def start(self):
+        return "Vroom"
+
+class Car:
+    def __init__(self):
+        self.engine = Engine()
+
+    def start(self):
+        return self.engine.start()
+
+print(Car().start())</code></pre>
+    <ul>
+      <li>A Car <i>has an</i> Engine, it is not an Engine</li>
+      <li>Store other objects as attributes, often in a list</li>
+      <li>Rule of thumb: <b>is-a → inherit</b>, <b>has-a → compose</b></li>
+    </ul>
+  </div>
+</section>
+
+<!-- nested class -->
+<section class="slide">
+  <span class="tag syn">Syntax · class inside a class</span>
+  <h2>Nested (inner) classes</h2>
+  <div class="split">
+<pre><code>class Computer:
+    class CPU:                      # inner class
+        def __init__(self, cores):
+            self.cores = cores
+
+        def info(self):
+            return f"{self.cores} cores"
+
+    def __init__(self, name, cores):
+        self.name = name
+        self.cpu = self.CPU(cores)  # create inner object
+
+pc = Computer("Dell", 8)
+print(pc.cpu.info())                # 8 cores
+
+c = Computer.CPU(4)                 # also possible
+print(type(c).__name__)             # CPU</code></pre>
+    <ul>
+      <li>Define a class in the body of another class</li>
+      <li>Reach it with <code>Outer.Inner</code> or <code>self.Inner</code></li>
+      <li>The inner class does <b>not</b> get the outer object automatically; pass it in if needed</li>
+      <li>Use it when the inner class only makes sense inside the outer one (a Node inside a LinkedList)</li>
+      <li>If other code needs it too, define it at the top level instead</li>
+    </ul>
+  </div>
+</section>
+
+<!-- nested class 2 -->
+<section class="slide">
+  <span class="tag syn">Syntax · class inside a class</span>
+  <h2>Example: LinkedList with an inner Node</h2>
+  <div class="split">
+<pre><code>class LinkedList:
+    class Node:
+        def __init__(self, value):
+            self.value = value
+            self.next = None
+
+    def __init__(self):
+        self.head = None
+
+    def add(self, value):
+        node = self.Node(value)
+        node.next = self.head
+        self.head = node
+
+    def show(self):
+        cur = self.head
+        while cur:
+            print(cur.value)
+            cur = cur.next
+
+ll = LinkedList()
+ll.add(1); ll.add(2)
+ll.show()          # 2, then 1</code></pre>
+    <ul>
+      <li><code>Node</code> is an implementation detail of <code>LinkedList</code>, so it lives inside</li>
+      <li>Users call <code>ll.add(5)</code> and never build Nodes themselves</li>
+      <li><b>Nested class</b> vs <b>composition</b>: composition stores an object of a class defined elsewhere; nesting also <i>defines</i> the class in place</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ex nested -->
+<section class="slide">
+  <span class="tag ex">Exercise · nested class</span>
+  <h2>Pizza with Toppings</h2>
+  <ul>
+    <li>Class <code>Pizza(size)</code> with an <b>inner class</b> <code>Topping(name, price)</code></li>
+    <li><code>add_topping(name, price)</code> creates a Topping inside and stores it in a list</li>
+    <li><code>total()</code> returns base price (30) plus the sum of topping prices</li>
+  </ul>
+<pre><code>p = Pizza("large")
+p.add_topping("olives", 5)
+p.add_topping("corn", 3)
+print(p.total())</code></pre>
+  <p class="out">38</p>
+  <details><summary>Solution</summary>
+<pre><code>class Pizza:
+    class Topping:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+    def __init__(self, size):
+        self.size = size
+        self.toppings = []
+
+    def add_topping(self, name, price):
+        self.toppings.append(self.Topping(name, price))
+
+    def total(self):
+        return 30 + sum(t.price for t in self.toppings)</code></pre>
+  </details>
+</section>
+
+<!-- ex inventory -->
+<section class="slide">
+  <span class="tag ex">Exercise · combine everything</span>
+  <h2>Product and Inventory</h2>
+  <ul>
+    <li><code>Product(name, price, qty)</code> with a <b>property</b> <code>price</code> that rejects negatives</li>
+    <li><code>total_value()</code> returns <code>price * qty</code></li>
+    <li><code>Inventory</code> holds a list of products: <code>add(p)</code>, <code>total()</code>, <code>__len__</code></li>
+    <li><code>@classmethod Product.from_string("milk,5,10")</code></li>
+  </ul>
+<pre><code>inv = Inventory()
+inv.add(Product.from_string("milk,5,10"))
+inv.add(Product("eggs", 2, 30))
+print(len(inv), inv.total())</code></pre>
+  <p class="out">2 110.0</p>
+  <details><summary>Solution</summary>
+<pre><code>class Product:
+    def __init__(self, name, price, qty):
+        self.name, self.qty = name, qty
+        self.price = price
+
+    @property
+    def price(self): return self._price
+    @price.setter
+    def price(self, v):
+        if v &lt; 0: raise ValueError("negative price")
+        self._price = v
+
+    def total_value(self): return self.price * self.qty
+
+    @classmethod
+    def from_string(cls, text):
+        n, p, q = text.split(",")
+        return cls(n, float(p), int(q))
+
+class Inventory:
+    def __init__(self): self.products = []
+    def add(self, p): self.products.append(p)
+    def total(self): return sum(p.total_value() for p in self.products)
+    def __len__(self): return len(self.products)</code></pre>
+  </details>
+</section>
+
+<!-- 25 -->
+<section class="slide">
+  <span class="tag ex">Mini project · pairs · 25 min</span>
+  <h2>Library system</h2>
+  <ul>
+    <li><code>Book(title, author)</code> with an <code>is_available</code> flag</li>
+    <li><code>Member(name)</code> can <code>borrow(book)</code> and <code>return_book(book)</code>, max 3 at once</li>
+    <li><code>Library</code> holds books and members; <code>find(title)</code> returns a Book or None</li>
+    <li>Bonus: <code>Ebook(Book)</code> is always available · Bonus 2: <code>__str__</code> everywhere</li>
+  </ul>
+  <p class="muted">Step 1: sketch the classes on paper. What does each class own?</p>
+  <details><summary>Hints</summary>
+    <ul>
+      <li>Library <b>has</b> a list of books, so use composition</li>
+      <li>The "max 3" rule belongs in <code>Member</code>, which owns the borrowed list</li>
+      <li>Ebook overrides the borrow behavior: polymorphism</li>
+    </ul>
+  </details>
+</section>
+
+<!-- 26 -->
+<section class="slide">
+  <span class="tag info">Debugging</span>
+  <h2>Common mistakes</h2>
+  <div class="grid">
+    <div class="card"><h3>Missing self</h3>
+<pre><code class="wrong">def bark():        # TypeError</code></pre>
+<pre><code class="right">def bark(self):</code></pre></div>
+    <div class="card"><h3>Forgot self.</h3>
+<pre><code class="wrong">name = name        # lost</code></pre>
+<pre><code class="right">self.name = name</code></pre></div>
+    <div class="card"><h3>No super()</h3>
+<pre><code class="wrong">def __init__(self, n, b):
+    self.b = b     # n never set</code></pre>
+<pre><code class="right">    super().__init__(n)</code></pre></div>
+    <div class="card"><h3>Shared list</h3>
+<pre><code class="wrong">class A:
+    items = []     # shared!</code></pre>
+<pre><code class="right">    self.items = []  # in __init__</code></pre></div>
+  </div>
+</section>
+
+<!-- 27 -->
+<section class="slide">
+  <span class="tag syn">Cheat sheet</span>
+  <h2>Syntax at a glance</h2>
+  <table>
+    <tr><td>Define</td><td><code>class A:</code></td></tr>
+    <tr><td>Constructor</td><td><code>def __init__(self, x):</code></td></tr>
+    <tr><td>Attribute</td><td><code>self.x = x</code></td></tr>
+    <tr><td>Inherit / parent call</td><td><code>class B(A):</code> · <code>super().__init__(x)</code></td></tr>
+    <tr><td>Private-ish / property</td><td><code>self._x</code> · <code>@property</code> · <code>@x.setter</code></td></tr>
+    <tr><td>Type checks</td><td><code>isinstance(o, A)</code> · <code>issubclass(B, A)</code></td></tr>
+    <tr><td>Abstract</td><td><code>class A(ABC):</code> + <code>@abstractmethod</code></td></tr>
+    <tr><td>Class / static method</td><td><code>@classmethod def f(cls)</code> · <code>@staticmethod def f()</code></td></tr>
+    <tr><td>Data class</td><td><code>@dataclass class P: x: int</code></td></tr>
+    <tr><td>Nested class</td><td><code>class Outer:</code> then <code>class Inner:</code> inside; <code>Outer.Inner()</code></td></tr>
+  </table>
+</section>
+
+<!-- 28 -->
+<section class="slide">
+  <span class="tag ex">Exit ticket</span>
+  <h2>Before you leave</h2>
+  <p>In one sentence each, with an example:</p>
+  <div class="pill-row">
+    <span class="pill">Encapsulation</span><span class="pill">Inheritance</span>
+    <span class="pill">Polymorphism</span><span class="pill">Abstraction</span>
+  </div>
+  <p class="muted">Then write one thing that's still unclear, and we'll start there next time.</p>
+</section>
+
+</main>
+
+<div class="nav">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <span id="count"></span>
+  <button id="next" aria-label="Next slide">→</button>
+</div>
+
+<script>
+  // Syntax highlighting: plain Python in <pre><code>, colored at load
+  const KW = 'class|def|return|if|elif|else|for|while|in|not|and|or|is|import|from|as|raise|pass|with|try|except|self|super|None|True|False|lambda';
+  const RE = new RegExp(
+    '(#.*$)|' +
+    '(f?"(?:[^"\\\\\\n]|\\\\.)*"|f?\'(?:[^\'\\\\\\n]|\\\\.)*\')|' +
+    '(@[\\w.]+)|' +
+    '\\b(def|class)(\\s+)(\\w+)|' +
+    '\\b(' + KW + ')\\b|' +
+    '\\b(\\d+(?:\\.\\d+)?)\\b', 'gm');
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  document.querySelectorAll('pre code').forEach(el => {
+    if (el.classList.contains('wrong') || el.classList.contains('right')) return;
+    el.innerHTML = esc(el.textContent).replace(RE, (m, com, str, dec, kw1, sp, name, kw, num) => {
+      if (com) return `<span class="c">${com}</span>`;
+      if (str) return `<span class="s">${str}</span>`;
+      if (dec) return `<span class="d">${dec}</span>`;
+      if (kw1) return `<span class="k">${kw1}</span>${sp}<span class="f">${name}</span>`;
+      if (kw) return `<span class="k">${kw}</span>`;
+      return `<span class="n">${num}</span>`;
+    });
+  });
+
+  // Navigation
+  const slides = [...document.querySelectorAll('.slide')];
+  const bar = document.getElementById('bar');
+  const count = document.getElementById('count');
+  let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    slides[i].scrollTop = 0;
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    count.textContent = (i + 1) + ' / ' + slides.length;
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.getElementById('next').onclick = () => show(i + 1);
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'SUMMARY' && e.key === ' ') return;
+    const k = e.key.toLowerCase();
+    if (['arrowright', 'pagedown', ' '].includes(k)) { e.preventDefault(); show(i + 1); }
+    else if (['arrowleft', 'pageup'].includes(k)) { e.preventDefault(); show(i - 1); }
+    else if (k === 'home') show(0);
+    else if (k === 'end') show(slides.length - 1);
+    else if (k === 's') slides[i].querySelectorAll('details').forEach(d => d.open = !d.open);
+    else if (k === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>
